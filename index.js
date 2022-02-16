@@ -2,6 +2,7 @@
 const state = {
   accountList: [],
   historyList: [],
+  filterList: [{ sender: "", receiver: ""}],
 };
 
 // State changing function
@@ -69,23 +70,71 @@ function renderOptions() {
   const optionList = [
     document.getElementById("senderNames"),
     document.getElementById("receiverNames"),
+    document.getElementById("senderFilter"),
+    document.getElementById("receiverFilter")
   ];
-  // Generate options for the sender and receiver lists
+  // Generate default options and required options for the sender and receiver lists
   optionList.forEach(function (subscriber) {
-    if (subscriber.id === "senderNames") {
-      subscriber.innerHTML = `<option value="" selected>From</option>`;
-    } else {
-      subscriber.innerHTML = `<option value="" selected>To</option>`;
+    switch (subscriber.id) {
+      case "senderNames":
+        subscriber.innerHTML = `<option value="" disabled selected hidden>From</option>`;
+        break;
+      case "receiverNames":
+        subscriber.innerHTML = `<option value="" disabled selected hidden>To</option>`;
+        break;
+      case "senderFilter":
+        subscriber.innerHTML = `<option value="" selected>Sender</option>`;
+        break;
+      case "receiverFilter":
+        subscriber.innerHTML = `<option value="" selected>Receiver</option>`;
+        break;
+      default:
+        break;
     }
     Option(state.accountList, subscriber);
   });
+}
+
+// Filtration list handling function
+function addFilter() {
+  const senderFilter = document.getElementById("senderFilter").value;
+  const receiverFilter = document.getElementById("receiverFilter").value;
+  setState("filterList", [
+    {
+      sender: senderFilter,
+      receiver: receiverFilter
+    }
+  ])
+  renderHistory();
+}
+
+// Filter the history list for rendering
+function filterList() {
+  const filterList = state.filterList[0]; // Get the filter from the state
+  const historyList = state.historyList; // Get the history list from the state
+  if (filterList.sender === "" && filterList.receiver === "") { // By default dont filter history
+    return historyList;
+  } else if (filterList.receiver === "") { // If the receiver filter is empty filter by sender filter
+    return historyList.filter(history => history.senderId === filterList.sender);
+  } else if (filterList.sender === "") { // If the sender filter is empty filter by receiver filter
+    return historyList.filter(history => history.receiverId === filterList.receiver);
+  } else if (filterList.sender === filterList.receiver) { // If sender and receiver filter is the same bring the all transactions with that account id
+    return historyList.filter(history => {
+      return history.senderId === filterList.sender || history.receiverId === filterList.receiver
+    });
+  } else { // If there is a sender and receiver filter bring all the transactions of the sender to receiver
+    return historyList.filter(history => {
+      return history.senderId === filterList.sender && history.receiverId === filterList.receiver
+    });
+  }
 }
 
 // History list render function
 function renderHistory() {
   const historyList = document.getElementById("historyList"); // Get the history list element
   historyList.innerHTML = ""; // Clear the history list element
-  Li(state.historyList, historyList); // Create list items for each history in the state to the history list
+  const filteredHistoryList = filterList();
+  Li(filteredHistoryList, historyList); // Create list items for each history in the state to the history list
 }
 
 // Account adding function
@@ -164,7 +213,7 @@ function addHistory(senderId, receiverId, amount) {
     ...state.historyList,
   ]);
   // Render history list
-  renderHistory();
+  renderHistory(state.historyList);
 }
 
 // History deleting function bt history id
@@ -174,7 +223,7 @@ function deleteHistory(historyId) {
   ); // Remove the history from the history state with by it's id
   setState("historyList", historyList); // Update the history state
   // Render history list
-  renderHistory();
+  renderHistory(state.historyList);
 }
 
 // Cancel transaction function
