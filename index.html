@@ -18,19 +18,25 @@
     />
     <style>
       body {
+        overflow-x: hidden;
         background: #88d4ab;
       }
 
       .box {
         background-color: #e5f9e0;
       }
+
+      .scrollList {
+        overflow-y: scroll;
+        height: 50vh; 
+        max-height: 60vh;
+      }
     </style>
   </head>
   <body>
-    <div style="height: 50px;"></div>
-    <div class="container text-center mt-5">
+    <div class="text-center mt-5">
       <div class="row">
-        <div class="box col-4 shadow m-auto p-3">
+        <div class="box col-2 shadow me-auto ms-auto p-3">
           <form class="row">
             <h5 class="text-start mt-1">Create an Account</h5>
             <div class="col-8">
@@ -58,14 +64,14 @@
                 type="button"
                 style="height: 100%"
                 class="btn btn-success"
-                onclick="addAccount(event)"
+                onclick="addAccount()"
               >
                 Add
               </button>
             </div>
           </form>
         </div>
-        <div class="box col-6 shadow m-auto p-3">
+        <div class="box col-3 shadow me-auto ms-auto p-3">
           <form class="row">
             <h5 class="text-start mt-1">Money Transfer</h5>
             <div class="col-6">
@@ -103,32 +109,124 @@
             </div>
           </form>
         </div>
+        <div class="box col-3 shadow me-auto ms-auto p-3">
+          <form class="row">
+            <h5 class="text-start mt-1">Add a Product</h5>
+            <div class="col-6">
+              <div class="mt-3">
+                <input
+                  type="text"
+                  class="form-control mt-3"
+                  id="productName"
+                  placeholder="Product Name"
+                />
+                <input
+                  type="number"
+                  class="form-control mt-3"
+                  id="productPrice"
+                  placeholder="Product price"
+                />
+              </div>
+            </div>
+            <div class="col-6">
+              <div class="mt-3">
+                <input
+                  type="number"
+                  class="form-control mt-3"
+                  id="productQuantity"
+                  placeholder="Product quantity"
+                />
+                <button
+                  type="button"
+                  class="btn btn-success mt-3"
+                  style="width: 100%"
+                  onclick="addProduct()"
+                >
+                  Add
+                </button>
+              </div>
+            </div>
+          </form>
+        </div>
+        <div class="box col-2 shadow me-auto ms-auto p-3">
+          <form class="row">
+            <h5 class="text-start mt-1">Cart</h5>
+            <div class="col-12">
+              <div class="mt-3">
+                <select class="form-control mt-3" id="cartUser" onchange="setCartUser()"></select>
+                <button
+                  type="button"
+                  class="btn btn-success mt-3"
+                  style="width: 100%"
+                  onclick="checkout()"
+                >
+                  Checkout
+                </button>
+              </div>
+            </div>
+          </form>
+        </div>
       </div>
     </div>
-    <div class="container mt-5">
+    <div class="mt-5">
       <div class="row">
-        <div class="col-4 mx-auto">
+        <div class="col-2 mx-auto ms-auto me-auto">
           <div class="box shadow p-3 row">
-            <div class="col-6"><strong>Accounts</strong></div>
-            <div class="col-4 ms-5"><strong>Balance</strong></div>
+            <div class="col-6 ms-auto me-auto"><strong>Accounts</strong></div>
+            <div class="col-4 me-5"><strong>Balance</strong></div>
             <div>
-              <ul class="list-group mt-4" id="accountsList"></ul>
+              <ul
+                class="list-group mt-4 scrollList"
+                id="accountsList"
+              ></ul>
             </div>
           </div>
         </div>
-        <div class="col-6 mx-auto">
+        <div class="col-3 mx-auto ms-auto me-auto">
           <div class="box shadow p-3 row">
-            <div class="col row">
-              <strong class="col">History</strong>
-              <div class="col row">
-                <strong class="col-3">Filter</strong>
-                <select class="form-control-sm col me-3" id="senderFilter" onchange="addFilter()"></select>
-                <select class="form-control-sm col" id="receiverFilter" onchange="addFilter()"></select>
+            <div class="row">
+              <strong class="col-4">History</strong>
+              <div class="col-8 row ms-auto">
+                <strong class="col-2 me-3">Filter</strong>
+                <select
+                  class="form-control-sm col me-3"
+                  id="senderFilter"
+                  onchange="addFilter()"
+                ></select>
+                <select
+                  class="form-control-sm col"
+                  id="receiverFilter"
+                  onchange="addFilter()"
+                ></select>
               </div>
             </div>
             <div>
-              <ul class="list-group mt-4" id="historyList"></ul>
+              <ul
+                class="list-group mt-4 scrollList"
+                id="historyList"
+              ></ul>
             </div>
+          </div>
+        </div>
+        <div class="col-3 mx-auto ms-auto me-auto">
+          <div class="box shodow p-3 row">
+            <strong>Products</strong>
+            <div>
+              <ul class="list-group mt-4 scrollList" id="productList">
+              </ul>
+            </div>
+          </div>
+        </div>
+        <div class="col-2 mx-auto ms-auto me-auto">
+          <div class="box shodow p-3 row">
+            <strong>Cart</strong>
+            <diV>
+              <ul class="list-group mt-4 scrollList" id="cart"></ul>
+            </diV>
+            <div class="p-1 d-flex justify-content-end" style="background-color: white;">
+              <div class="d-flex align-items-center me-2" id="cartTotal">0 &#8378</div>
+              <strong class="p-1 border-start border-dark">Total</strong>
+            </d>
           </div>
         </div>
       </div>
