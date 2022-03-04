@@ -4,7 +4,7 @@ const state = {
   historyList: [],
   filterList: [{ sender: "", receiver: "" }],
   productList: [],
-  cart: [{ currentUser: "",cartTotal: 0 }],
+  cart: [{ currentUser: "",cartTotal: 0 , products: []}],
 };
 
 // State changing function
@@ -77,9 +77,6 @@ function Li(list, subscriber) {
       break;
   }
 }
-
-// List item creation for product list function
-function ProductLi(list, subscriber) {}
 
 // Option creation function for the selection menu
 function Option(list, subscriber) {
@@ -225,9 +222,9 @@ function addAccount() {
 // Account removing function
 function removeAccount(event) {
   const accountId = event.target.parentElement.attributes["account-id"].value; // Get the account id of the target account
-  const accountList = state.accountList.filter(
-    (account) => account.id !== accountId
-  ); // Remove the account from the account list
+  const accountIndex = state.accountList.findIndex(account => account.id === accountId);
+  const accountList = state.accountList.slice(accountIndex, 1); // Remove the account from the account list
+  console.log(accountList)
   setState("accountList", accountList); // Update the state with the new account list
   if (state.cart[0].currentUser === accountId) {
     setState("cart", [{
