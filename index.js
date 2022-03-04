@@ -4,7 +4,7 @@ const state = {
   historyList: [],
   filterList: [{ sender: "", receiver: "" }],
   productList: [],
-  cart: [{ currentUser: "",cartTotal: 0 , products: []}],
+  cart: { currentUser: "", total: 0, products: [] },
 };
 
 // State changing function
@@ -62,7 +62,7 @@ function Li(list, subscriber) {
       });
       break;
     case "cart":
-      list[0].products.forEach((element) => {
+      list.products.forEach((element) => {
         const newLi = document.createElement("li");
         newLi.setAttribute(
           "class",
@@ -82,8 +82,8 @@ function Li(list, subscriber) {
 function Option(list, subscriber) {
   list.forEach((element) => {
     const newOption = document.createElement("option"); // Create the option element
-    if (state.cart[0].currentUser === element.id) {
-      newOption.setAttribute("selected", true)
+    if (state.cart.currentUser === element.id) {
+      newOption.setAttribute("selected", true);
     }
     newOption.setAttribute("value", element.id); // Set option value to the account id
     newOption.innerText = element.name; // Write the account name into the option
@@ -124,10 +124,10 @@ function renderOptions() {
         subscriber.innerHTML = `<option value="" selected>Receiver</option>`;
         break;
       case "cartUser":
-        if (state.cart[0].currentUser === "") {
+        if (state.cart.currentUser === "") {
           subscriber.innerHTML = `<option value="" disabled selected hidden>User</option>`;
         } else {
-          subscriber.innerHTML = ``
+          subscriber.innerHTML = ``;
         }
         break;
       default:
@@ -222,16 +222,20 @@ function addAccount() {
 // Account removing function
 function removeAccount(event) {
   const accountId = event.target.parentElement.attributes["account-id"].value; // Get the account id of the target account
-  const accountIndex = state.accountList.findIndex(account => account.id === accountId);
-  const accountList = state.accountList.slice(accountIndex, 1); // Remove the account from the account list
-  console.log(accountList)
+  const accountIndex = state.accountList.findIndex(
+    (account) => account.id === accountId
+  );
+  const accountList = state.accountList.slice(); // Copy whole account list
+  accountList.splice(accountIndex, 1); // Remove the account from the account list
   setState("accountList", accountList); // Update the state with the new account list
-  if (state.cart[0].currentUser === accountId) {
-    setState("cart", [{
-      currentUser: "",
-      products: [],
-      total: 0
-    }])
+  if (state.cart.currentUser === accountId) {
+    setState("cart", 
+      {
+        currentUser: "",
+        products: [],
+        total: 0,
+      },
+    );
   }
   // Render account list and select menu options
   renderCart();
@@ -333,23 +337,27 @@ function changeBalance(accountId, amount) {
 // Product stock change function
 function changeStock(cartProductList, sign) {
   const productList = state.productList;
-  if (sign === "+")
-  {
+  if (sign === "+") {
     cartProductList.forEach((cartProduct, index) => {
-      const productIndex = productList.findIndex(product => product.id === cartProduct.id);
+      const productIndex = productList.findIndex(
+        (product) => product.id === cartProduct.id
+      );
       productList[productIndex] = {
         ...productList[productIndex],
-        quantity: productList[productIndex] + cartProductList[index].quantity
+        quantity: productList[productIndex] + cartProductList[index].quantity,
       };
-    })
+    });
   } else if (sign === "-") {
     cartProductList.forEach((cartProduct, index) => {
-      const productIndex = productList.findIndex(product => product.id === cartProduct.id);
+      const productIndex = productList.findIndex(
+        (product) => product.id === cartProduct.id
+      );
       productList[productIndex] = {
         ...productList[productIndex],
-        quantity: productList[productIndex].quantity - cartProductList[index].quantity
+        quantity:
+          productList[productIndex].quantity - cartProductList[index].quantity,
       };
-    })
+    });
   }
   setState("productList", productList);
   renderProducts();
@@ -390,22 +398,20 @@ function renderProducts() {
 // Set cart user function
 function setCartUser() {
   const cartUser = document.getElementById("cartUser").value;
-  setState("cart", [
-    {
-      currentUser: cartUser,
-      products: [],
-      total: 0,
-    },
-  ]);
+  setState("cart", {
+    currentUser: cartUser,
+    products: [],
+    total: 0,
+  });
   renderCart();
 }
 
 // Add cart function
 function addToCart(event) {
-  if (!state.cart[0].currentUser) {
+  if (!state.cart.currentUser) {
     alert("No user selected for cart!");
   } else {
-    const cartProducts = state.cart[0].products;
+    const cartProducts = state.cart.products;
     const productId = event.target.parentElement.attributes["product-id"].value;
     const productIndex = cartProducts.findIndex(
       (product) => product.id === productId
@@ -426,33 +432,29 @@ function addToCart(event) {
         quantity: 1,
       });
     }
-    const cartTotal = state.cart[0].products.reduce((acc, curr) => {
+    const cartTotal = state.cart.products.reduce((acc, curr) => {
       return acc + curr.quantity * curr.price;
     }, 0);
-    setState("cart", [
-      {
-        currentUser: state.cart[0].currentUser,
-        products: cartProducts,
-        total: cartTotal
-      },
-    ]);
+    setState("cart", {
+      currentUser: state.cart.currentUser,
+      products: cartProducts,
+      total: cartTotal,
+    });
     renderCart();
   }
 }
 
 // Checkout function
 function checkout() {
-  const currentAccountId = state.cart[0].currentUser;
-  const total = state.cart[0].total;
+  const currentAccountId = state.cart.currentUser;
+  const total = state.cart.total;
   changeBalance(currentAccountId, -total);
-  changeStock(state.cart[0].products, "-");
-  setState("cart", [
-    {
-      currentUser: currentAccountId,
-      products: [],
-      total: 0
-    }
-  ])
+  changeStock(state.cart.products, "-");
+  setState("cart", {
+    currentUser: currentAccountId,
+    products: [],
+    total: 0,
+  });
   renderAccounts();
   renderCart();
 }
@@ -461,7 +463,7 @@ function checkout() {
 function renderCart() {
   const cart = document.getElementById("cart");
   const cartTotalElement = document.getElementById("cartTotal");
-  const cartTotal = state.cart[0].total;
+  const cartTotal = state.cart.total;
   cartTotalElement.innerHTML = `${cartTotal} &#8378`;
   cart.innerHTML = "";
   Li(state.cart, cart);
